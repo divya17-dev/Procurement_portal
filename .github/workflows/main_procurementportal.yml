@@ -35,19 +35,20 @@ jobs:
           source venv/bin/activate
 
       - name: Install dependencies
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         run: pip install -r requirements.txt -t .python_packages/lib/site-packages
 
       # Optional: Add step to run tests here
 
       - name: Zip artifact for deployment
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         run: zip -r release.zip . -x "venv/*" ".git/*" ".github/*" "__pycache__/*" "*.pyc"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-             ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/release.zip
+          path: Github_action/Procurementportal/release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -67,5 +68,5 @@ jobs:
         id: deploy-to-function
         with:
           app-name: 'Procurementportal'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          package: '.'
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
