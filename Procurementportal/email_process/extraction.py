@@ -2487,12 +2487,68 @@ try:
                             - If any of the following fields appear in the document (**Purchase Order, Material Number, Quantity, Batch, line_number, net_price**) but their values are missing, set them to **"N/A"** in the output JSON.
                             - If any of these fields do **not** appear in the document at all, set them to **Null** in the output JSON.
 
-                        8 **Date Field Standardization:**
+                        8. Enforcement Rule for total_price:
+                            - For each line item, extract total_price only if the value appears in the same visual row (same horizontal line or clearly grouped block) as the line_number and material_description.
+                            - Do not copy or shift total_price from the next or previous line item, even if the format is broken.
+                            - If total_price is missing in the same visual group, set "total_price": "N/A".
+                            - Never borrow from nearby values, subtotals, or grand totals — each total_price must be explicitly and visually tied to that line item only.
+                            - If document looks like this:
+
+                                00010 | DEXTROSE        | $20.00
+                                00020 | WHEY            |
+                                00030 | GUAR GUM        | $4,000.00
+                                
+                                - Output must be:
+
+                                Example formats for your internal reference only (not part of extracted text)
+                                 "line_items": [
+                                    {{
+                                        "line_number": "00010",
+                                        "material_code": "0016",
+                                        "material_description": "DEXTROSE",
+                                        "quantity": "1,100.000 LB",
+                                        "net_price": "$ 20.00 / 100 LB",
+                                        "total_price": "$ 20.00",
+                                        "delivery_date": "2025-07-22",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }},
+                                    {{
+                                        "line_number": "00020",
+                                        "material_code": "0018",
+                                        "material_description": "WHEY",
+                                        "quantity": "1,000.000 LB",
+                                        "net_price": "$ 15.00 / 1 LB",
+                                        "total_price": "N/A",
+                                        "delivery_date": "2025-08-21",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }},
+                                    {{
+                                        "line_number": "00030",
+                                        "material_code": "0020",
+                                        "material_description": "GUAR GUM",
+                                        "quantity": "250.000 LB",
+                                        "net_price": "$ 80.00 / 1 LB",
+                                        "total_price": "$ 4,000.00",
+                                        "delivery_date": "2025-07-24",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }}
+                                    ]
+
+                                - Do not let "$4,000.00" slide up to line 00020.
+                                - Preserve accuracy even if the layout is irregular.
+
+                        9. **Date Field Standardization:**
                             - Consider the following field name variations as their respective standardized field names:
                                 - **po_date** → Date, Purchase Order Date, Order Date, PO Date
                                 - **delivery_date** → Due Date, Delivery Date, Exp Del Date, Expected Delivery Date
 
-                        9 **Material Code Placement:**
+                        10. **Material Code Placement:**
                             - Ensure that `material_code` appears **only inside the `line_items` section** in the output JSON.
                             - Do not include `material_code` outside of `line_items`.
 
