@@ -963,7 +963,55 @@ try:
                     elements = partition_pdf(filename=file_path, languages=["eng"])
                     
                     extracted_text = "\n".join(str(element) for element in elements)
-                   
+                    # Convert the document
+                    # converter = DocumentConverter()
+                    # result = converter.convert(file_path)
+                    # doc_dict = result.document.export_to_dict()
+
+                    # # Collect all visible text
+                    # text_lines = []
+
+                    # def collect_texts(items, key="text"):
+                    #     for item in items:
+                    #         text = item.get(key)
+                    
+                    # collect_texts(doc_dict.get("texts", []))
+
+                    # # Extract from table cells
+                    # for table in doc_dict.get("tables", []):
+                    #     for cell in table.get("data", {}).get("table_cells", []):
+                    #         text = cell.get("text")
+                    #         if text:
+                    #             text_lines.append(text.strip())
+
+                    # # Extract from captions, footnotes, annotations in tables
+                    # for section in ["captions", "footnotes", "annotations"]:
+                    #     for table in doc_dict.get("tables", []):
+                    #         for item in table.get(section, []):
+                    #             collect_texts([item])
+
+                    # # Extract from pictures
+                    # for pic in doc_dict.get("pictures", []):
+                    #     for key in ["captions", "footnotes", "annotations"]:
+                    #         for item in pic.get(key, []):
+                    #             text = item.get("text")
+                    #             if text:
+                    #                 text_lines.append(text.strip())
+
+                    # # Extract from form_items and key_value_items
+                    # collect_texts(doc_dict.get("form_items", []))
+                    # collect_texts(doc_dict.get("key_value_items", []))
+
+                    # # Combine into single plain text
+                    # extracted_text = "\n".join(text_lines)
+
+                    # # Final plain text output
+                    # print("PLAIN TEXT OUTPUT:\n")
+                    # print(extracted_text)      
+                    # if text:
+                    #         text_lines.append(text.strip())
+
+# 
                     
                     extracted_text_lower = (extracted_text or "").lower()
                     print("Extracted_text_lower",extracted_text_lower)
@@ -1041,7 +1089,7 @@ try:
                         for line in lines:
                             line_lower = line.lower()
 
-                            # Direct match by material code
+                            # 1️Direct match by material code
                             if material_code and material_code in line:
                                 if material_code not in matched_codes_set:
                                     matched_materials.append({
@@ -1051,7 +1099,7 @@ try:
                                     })
                                     matched_codes_set.add(material_code)
 
-                            # Match by description and material code in same line
+                            # 2️Match by description and material code in same line
                             elif description_lower in line_lower and material_code in line:
                                 if material_code not in matched_codes_set:
                                     matched_materials.append({
@@ -1061,7 +1109,7 @@ try:
                                     })
                                     matched_codes_set.add(material_code)
 
-                            # Description matched, code NOT present — infer from master
+                            # 3️Description matched, code NOT present — infer from master
                             elif description_lower in line_lower and material_code not in line:
                                 if material_code not in matched_codes_set:
                                     matched_materials.append({
@@ -1194,7 +1242,11 @@ try:
                                     cleaned_materials.append({"material_code": raw_code})
                                 else:
                                     reasons[f"{po}:{raw_code}"] = f"Material code '{raw_code}' not valid for PO {po}"
-                            
+                                # if extracted in valid_codes:
+                                #     cleaned_materials.append({"material_code": raw_code})
+                                # else:
+                                #     reasons[f"{po}:{raw_code}"] = f"Material code '{raw_code}' not valid for PO {po}"
+
                             if cleaned_materials:
                                 cleaned_result[po] = cleaned_materials
                             elif po not in reasons:
@@ -1266,11 +1318,11 @@ try:
 
                             7. Line items: 
                             For each line item extract:
-                            - line_number (e.g., 2800028100 or 00010)
+                            - line_number (e.g., 2800028100, or 00010, or 1)
                             - material_code (e.g.,Material #, CUST #: 0113 → material_code = 0113,or 0016)
                             - material_description
-                            - quantity (as a single string like "100 BAG" or "4,050.000 LB" )
-                            - net_price (e.g., "$ 20.00 / 100LB", or "$ 36.6700 BAG",or "36.6700" or "7.21 LB" or "960" or "10.00") 
+                            - quantity (as a single string like "100 BAG", or "4,050.000 LB", or "601 CAR" )
+                            - net_price (e.g., "$ 20.00 / 100LB", or "10.12 CAR", or "$ 36.6700 BAG",or "36.6700" or "7.21 LB" or "960" or "10.00") 
                             - total_price (e.g., "$ 3,667.00" or "3,667.00" or $20.00)
                             - delivery_date / pickup_date / ship_date (only if within that row)
                             - Capture any additional metadata (e.g., Net Wgt etc) not fitting inside each line item.
@@ -1319,7 +1371,6 @@ try:
                             Notes:
                             -Keep quantity as a single string, do not split into value and unit.
                             - If unit_price is quoted per batch (e.g., "$20.00 / 100 LB"), divide quantity by batch size before multiplying.
-                            -"Always extract total_price exactly as shown in the document and assign it to the correct line item. Do not calculate or rearrange values."
                             
                             8. Material Code Resolution Logic (Highly Critical):
 
@@ -1338,31 +1389,73 @@ try:
                             - `Material #`,`CUST #` → material_code
                             - If a code like "234290-xxxxx RDG" appears, extract "234290" as material_code and treat the rest as material_description.
                             - Do not allow `line_number` and `material_code` to be the same; if same, set material_code as null.
-                            - For each line item, extract `total_price` exactly as shown in the document. Do not perform any calculations. Do not copy from other lines. Do not guess. Match the `total_price` directly with the associated `line_number` and `material_code`. If no price is shown in the document, use "N/A".
-                            - Extract the `total_price` exactly as it appears in the document. 
-                            - Do not perform calculations or derive it from other values (e.g., from quantity and unit price).
-                            - If the `total_price` is missing, assign it as "N/A".
                             - Group fields correctly per line item: All fields like `material_code`, `material_description`, `quantity`, `net_price`, `total_price`, and `delivery_date` must belong to the same `line_number`.
                             - Do not split one item across multiple line items or duplicate line numbers unless explicitly shown that way in the document.
                             - Maintain proper sequence of line numbers: e.g., "00010", "00020", "00030".
-                            - Extract `total_price` exactly as it appears near its line in the document. Do not copy from nearby lines or perform calculations.
+
+                            10. Enforcement Rule for total_price:
+                            - For each line item, extract total_price only if the value appears in the same visual row (same horizontal line or clearly grouped block) as the line_number and material_description.
+                            - Do not copy or shift total_price from the next or previous line item, even if the format is broken.
+                            - If total_price is missing in the same visual group, set "total_price": "N/A".
+                            - Never borrow from nearby values, subtotals, or grand totals — each total_price must be explicitly and visually tied to that line item only.
+                            - If document looks like this:
+
+                                00010 | DEXTROSE        | $20.00
+                                00020 | WHEY            |
+                                00030 | GUAR GUM        | $4,000.00
+                                
+                                - Output must be:
+
+                                Example formats for your internal reference only (not part of extracted text)
+                                 "line_items": [
+                                    {{
+                                        "line_number": "00010",
+                                        "material_code": "0016",
+                                        "material_description": "DEXTROSE",
+                                        "quantity": "1,100.000 LB",
+                                        "net_price": "$ 20.00 / 100 LB",
+                                        "total_price": "$ 20.00",
+                                        "delivery_date": "2025-07-22",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }},
+                                    {{
+                                        "line_number": "00020",
+                                        "material_code": "0018",
+                                        "material_description": "WHEY",
+                                        "quantity": "1,000.000 LB",
+                                        "net_price": "$ 15.00 / 1 LB",
+                                        "total_price": "N/A",
+                                        "delivery_date": "2025-08-21",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }},
+                                    {{
+                                        "line_number": "00030",
+                                        "material_code": "0020",
+                                        "material_description": "GUAR GUM",
+                                        "quantity": "250.000 LB",
+                                        "net_price": "$ 80.00 / 1 LB",
+                                        "total_price": "$ 4,000.00",
+                                        "delivery_date": "2025-07-24",
+                                        "pickup_date": null,
+                                        "ship_date": null,
+                                        "extra_fields": {{}}
+                                    }}
+                                    ]
+
+                                - Do not let "$4,000.00" slide up to line 00020.
+                                - Preserve accuracy even if the layout is irregular.
                             
-                            Enforcement Rule
-                            - Only extract `total_price` or `quantity` if the value is on the **same visual block** or **same horizontal alignment** as the corresponding `line_number` or its related fields (e.g., `material_description`, `net_price`).
+                            11. Enforcement Rule for quantity:
+                            - Only extract `quantity` if the value is in the **same horizontal row** or **same block** as the corresponding `line_number` and `material_description`. If `quantity` is not clearly present on that line, even if other fields are, you must assign `"quantity": "N/A"`. Do not guess or infer it from context or neighboring lines.
                             - If the value appears in a **different visual row**, **under another line item**, or is not **clearly aligned** with the same line item context, **do not extract it**.
                             - In such cases, assign `"N/A"` to avoid incorrect mapping.
                             - Do not assume or infer — **never borrow values** from other line items.
 
-                            Few-Shot Example:
-
-                            Incorrect:  
-                            Line 00010 has its own `total_price` as "$5,000.00" but the model ignored it and incorrectly took "$4,000.00" from line 00020.
-
-                            Correct:  
-                            Line 00010 → `total_price`: "$5,000.00"  
-                            Line 00020 → `total_price`: "$4,000.00"
-
-                            11. net_price Handling :
+                            12. net_price Handling :
                             - Always extract the net_price exactly as it appears in the document (e.g., $7.21 LB) without modifying or reformatting it (do not convert it to $7.21 / LB or similar).
                             
                             Example of net_price extraction:(Strictly)
@@ -1380,13 +1473,47 @@ try:
                                         "ship_date": null,
                                         "extra_fields": {{}}
                                     }}
+                                    ]
 
-                            12. Missing Field Handling (Highly Critical):
+                            13. Visual Alignment Enforcement for All Line Item Fields
+                                - For any field (line_number, material_code, material_description, quantity, net_price, total_price, etc.), extract the value only if it appears on the same visual row or block as the other fields of that line item.
+
+                                - If a field is missing from that same row or block, assign "N/A" for that field.
+
+                                - Do not assume or infer values based on the presence of nearby labels, units, or context from other line items.
+
+                                - If a field like "LB", "KG", or "CAR" appears without its corresponding quantity, store the unit in extra_fields, but set "quantity": "N/A".
+
+                                - Never borrow or shift values from the next or previous line item.
+
+                                - This applies to all fields: quantity, net_price, total_price, delivery_date, etc.        
+                            
+                            - Example of Misaligned line item missing field:(Strictly)
+                            Example formats for your internal reference only (not part of extracted text)
+
+                            "line_items": [
+                            {{
+                                "line_number": "00010",
+                                "material_code": "00201",
+                                "material_description": "Bulk Corn Flour",
+                                "quantity": "N/A",
+                                "net_price": "$1.00",
+                                "total_price": "$10.00",
+                                "delivery_date": "2025-06-20",
+                                "pickup_date": null,
+                                "ship_date": null,
+                                "extra_fields": {{
+                                "unit": "LB"
+                                }}
+                            }}
+                            ]
+                                    
+                            14. Missing Field Handling (Highly Critical):
                             Missing field rules (critical):
-
-                            If a label is shown but its value is missing, set it to "N/A" (e.g., quantity: "N/A").
-
-                            If a label is not found at all in the document, assign the field as null.
+                            
+                            - If a **label is present** but the value is missing, set the value as `"N/A"` (e.g., `"quantity": "N/A"`).
+                            - If a **label is not found at all** in the document, assign the field as `null`.
+                            - If a field like `quantity` is **expected** based on the line format but is **not visually present in the same row**, assign `"N/A"`.
 
                             These must be followed consistently for all fields including buyer_info, addresses, quantities, prices, emails, etc.
 
@@ -1407,7 +1534,7 @@ try:
                            }}
                                 
 
-                            13. extra_fields:
+                            15. extra_fields:
                             - Capture any additional metadata (e.g., Sales Order, Freight ,po_total_excluding_tax) not fitting standard fields.
 
                             Ensure:
@@ -1420,6 +1547,7 @@ try:
                             
                             Strictly ensure: Do not repeat line numbers for different products, and always pair the correct `total_price` with the corresponding product line.
                             
+                           
                             Document text:
                             {extracted_text_lower}
                             
@@ -2982,6 +3110,7 @@ try:
                 else:
                     material_context += "No direct material_code or material_description matches found in the email body.\n"
 
+ 
                 system_prompt = f"""
                 You are a reliable AI system that extracts structured purchase order data from any email body, including tables and free text.
 
@@ -2999,6 +3128,8 @@ try:
                     - "material_description"
                     - "quantity"
                     - "net_price"
+                    - "total_price"
+                    
 
                 3. Strict Missing Field Rules:
                     - If a label is present but the value is missing → return `"N/A"`
@@ -3012,7 +3143,7 @@ try:
 
                     Example formats for your internal reference only (not part of email body):
                        
-                    Input1: 0016 Dextrose #00010 100LB 50.00/100LB
+                    Input1: 0016 Dextrose #00010 100LB 50.00/100LB 20.00
                     
                     Output1:
                     "line_items":[{{
@@ -3021,11 +3152,11 @@ try:
                     "material_description": "Dextrose",
                     "quantity": "100LB",
                     "net_price": "50.00/1LB",
-                    "total_price": null,
+                    "total_price": "20.00",
                     "batch": null
                     }}]
                     
-                    Input2:0018 SWEET DAIRY WHEY-1 #00020 315LB 15.00/1LB
+                    Input2:0018 SWEET DAIRY WHEY-1 #00020 315LB 15.00/1LB 4,000.00
                     
                     Output2:     
                     "line_items":[{{
@@ -3034,12 +3165,12 @@ try:
                     "material_description": "SWEET DAIRY WHEY-1",
                     "quantity": "315LB",
                     "net_price": "15.00/1LB",
-                    "total_price": null,
+                    "total_price": "4,000.00",
                     "batch": null
                     }}]
                     
                     
-                    Input3:0020 GUAR GUM #00030 50LB 80.00/1LB
+                    Input3:0020 GUAR GUM #00030 50LB 80.00/1LB 650.00
                     
                     Output3:
                     "line_items":[{{
@@ -3048,7 +3179,7 @@ try:
                     "material_description": "GUAR GUM",
                     "quantity": "50LB",
                     "net_price": "80.00/1LB",
-                    "total_price": null,
+                    "total_price": "650.00",
                     "batch": null
                     }}]
                     
@@ -3070,8 +3201,7 @@ try:
                     - Else if material description matches → map the correct material code.
                     - If the material code is shown in brackets after a product number (e.g., "130005004 (228412)"), extract the value in brackets as the `material_code`.
 
-                    
-
+                
 
                 8. Grouping and Isolation:
                     - Each line item must be independent.
@@ -3349,7 +3479,7 @@ try:
                                 print(f"Error storing BOL proof for PO {clean_po_number}: {e}")
                         
                         else:
-                            # 🔄 For Order Confirmation (existing logic)
+                            # For Order Confirmation (existing logic)
                             proof_data = {
                                 "_id": clean_po_number,
                                 "received_datetime": received_datetime,
@@ -3534,7 +3664,7 @@ try:
                         if not isinstance(item, dict):
                             continue
 
-                        required_fields = ["material_code", "quantity", "net_price"]
+                        required_fields = ["material_code", "quantity", "total_price"]
 
                         missing_values = [item.get(field) in ["N/A"] for field in required_fields]
 
