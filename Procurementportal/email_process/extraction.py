@@ -103,16 +103,16 @@ try:
         # Print full server info to see available fields
         print(server_info)
         # # Database for Confirmation
-        # db = client["Confirmation"]
-        # collection = db["Details"]
-        # proof_collection = db["Proof"]
-        # missing_collection=db["Missing"]
+        db = client["Confirmation"]
+        collection = db["Details"]
+        proof_collection = db["Proof"]
+        missing_collection=db["Missing"]
 
         # Testing database
-        db = client["Testing_Confirmation"]
-        collection = db["Testing_Details"]
-        proof_collection = db["Testing_Proof"]
-        missing_collection=db["TestingMissing"]
+        # db = client["Testing_Confirmation"]
+        # collection = db["Testing_Details"]
+        # proof_collection = db["Testing_Proof"]
+        # missing_collection=db["TestingMissing"]
 
         ATTACHMENT_DIR = "attachments"
 
