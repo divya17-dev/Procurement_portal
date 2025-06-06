@@ -40,6 +40,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from sentence_transformers import SentenceTransformer
 import traceback
 import urllib3
+import xml
 
 
 try:
