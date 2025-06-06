@@ -17,3 +17,4 @@ lxml
 docx
 tqdm 
 azure-functions
+urllib3
