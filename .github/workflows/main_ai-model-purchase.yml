@@ -70,4 +70,4 @@ jobs:
           app-name: 'Ai-Model-Purchase'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_42CEC5FDD4EB414FAA4FE3AB3FCFD97A }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E04C73BE3FA54138B793D79C16690D2B }}
