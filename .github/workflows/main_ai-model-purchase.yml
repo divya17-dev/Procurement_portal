@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
  
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'procurementportal' # Set to correct function directory
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Procurementportal' # Set to correct function directory
   PYTHON_VERSION: '3.10' # Python runtime version
  
 jobs:
