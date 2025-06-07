@@ -55,6 +55,4 @@ jobs:
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_68322386CD1442F085811A4A0B7D9097 }}
  
-      - name: Restart Function App (Ensuring Sync)
-        run: |
-          az functionapp restart --name Ai-Model-Purchase --resource-group AIModel-Dev-RG
+      
