@@ -35,7 +35,7 @@ jobs:
           source venv/bin/activate
  
       - name: Install dependencies
-        run: pip install -r Procurementportal/requirements.txt -t .python_packages/lib/site-packages
+        run: pip install -r Procurementportal/requirements.txt 
  
       # Optional: Add step to run tests here
  
@@ -54,5 +54,7 @@ jobs:
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_68322386CD1442F085811A4A0B7D9097 }}
- 
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
+          respect-funcignore: true
       
