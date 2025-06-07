@@ -70,4 +70,4 @@ jobs:
           app-name: 'Purchaseportal'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_011FDA00203A49F59D5D5F224434238E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B7D646844748405FB5341349B6752500 }}
