@@ -5,7 +5,7 @@ import os
 import traceback
 
 # Ensure main.py is importable
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+site_packages_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.python_packages/lib/site-packages'))
 from email_process.extraction import start_email_monitoring  # assuming function is in main.py
 
 
