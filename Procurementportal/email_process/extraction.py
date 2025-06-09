@@ -1,51 +1,59 @@
-# import the library
-import requests
-import pandas as pd
-import json
 import os
-from dotenv import load_dotenv
-import datetime
-from bs4 import BeautifulSoup
-import threading
-import time
-import schedule
-import base64
-import hashlib
-import pymongo
-from pathlib import Path
-from openai import AzureOpenAI
-import queue
-import shutil
-import glob
-import re
-import docx
-from collections import deque
-from unstructured.partition.xlsx import partition_xlsx
-from unstructured.partition.text import partition_text
-from unstructured.partition.pdf import partition_pdf
-from unstructured.partition.image import partition_image
-from unstructured.partition.html import partition_html
-from unstructured.partition.docx import partition_docx
-from unstructured.partition.doc import partition_doc
-from unstructured.partition.csv import partition_csv
-from unstructured.documents.elements import NarrativeText
-from concurrent.futures import ThreadPoolExecutor
-from requests.auth import HTTPBasicAuth
-from PIL import Image
-import io
 import sys
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
-import random
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from sentence_transformers import SentenceTransformer
 import traceback
-import urllib3
-import xml
-
-
+ 
+# Append site-packages path dynamically
+site_packages_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".python_packages", "lib", "site-packages"))
+if site_packages_path not in sys.path:
+    sys.path.append(site_packages_path)
+    
 try:
 #Load the environment variable
-    
+
+        
+        # import the library
+        import requests
+        import pandas as pd
+        import json
+        import os
+        from dotenv import load_dotenv
+        import datetime
+        from bs4 import BeautifulSoup
+        import threading
+        import time
+        import schedule
+        import base64
+        import hashlib
+        import pymongo
+        from pathlib import Path
+        from openai import AzureOpenAI
+        import queue
+        import shutil
+        import glob
+        import re
+        import docx
+        from collections import deque
+        from unstructured.partition.xlsx import partition_xlsx
+        from unstructured.partition.text import partition_text
+        from unstructured.partition.pdf import partition_pdf
+        from unstructured.partition.image import partition_image
+        from unstructured.partition.html import partition_html
+        from unstructured.partition.docx import partition_docx
+        from unstructured.partition.doc import partition_doc
+        from unstructured.partition.csv import partition_csv
+        from unstructured.documents.elements import NarrativeText
+        from concurrent.futures import ThreadPoolExecutor
+        from requests.auth import HTTPBasicAuth
+        from PIL import Image
+        import io
+        import sys
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
+        import random
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from sentence_transformers import SentenceTransformer
+        import traceback
+        import urllib3
+        import xml
         # load_dotenv()
 
         # # Client credentials
@@ -79,6 +87,7 @@ try:
         # db_host=os.environ.get("db_host",db_host1)
         # db_port = int(os.environ.get("db_port",db_port1))
         # # Database
+    
         db_username=os.environ.get("db_username")
         db_password=os.environ.get("db_password")
         db_host=os.environ.get("db_host")
