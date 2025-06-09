@@ -53,7 +53,7 @@ try:
         from sentence_transformers import SentenceTransformer
         import traceback
         import urllib3
-        import xml
+        
         # load_dotenv()
 
         # # Client credentials
